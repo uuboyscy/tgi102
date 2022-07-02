@@ -1,5 +1,10 @@
 import requests
+import os
 from bs4 import BeautifulSoup
+
+if not os.path.exists('./articles'):
+    os.mkdir('./articles')
+
 
 url = "https://www.ptt.cc/bbs/movie/index.html"
 
@@ -7,7 +12,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
 }
 
-for i in range(0, 5):
+for i in range(0, 1):
     res = requests.get(url, headers=headers)
     soup = BeautifulSoup(res.text, 'html.parser')
 
@@ -21,6 +26,18 @@ for i in range(0, 5):
             titleUrl = "https://www.ptt.cc" + titleObj["href"]
             print(titleName)
             print(titleUrl)
+
+            # Request titleUrl
+            resArticle = requests.get(titleUrl, headers=headers)
+            soupArticle = BeautifulSoup(resArticle.text, "html.parser")
+            articleObj = soupArticle.select_one('div[id="main-content"]')
+            articleStr = articleObj.text.split('※ 發信站:')[0]
+            print(articleStr)
+            try:
+                with open('./articles/{}.txt'.format(titleName.replace("/", "")), 'w', encoding='utf-8') as f:
+                    f.write(articleStr)
+            except OSError:
+                pass
         except AttributeError as e:
             print(title)
         print("======")
