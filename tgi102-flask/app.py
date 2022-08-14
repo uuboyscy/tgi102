@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import poker as p
 
 app = Flask(
@@ -17,6 +17,11 @@ def hello():
 def hello_someone(username):
     output_html = 'Hello {} !'
     return output_html.format(username)
+
+
+@app.route('/hello2/<username>')
+def hello_someone2(username):
+    return render_template('index.html', username=username)
 
 
 @app.route('/add/<x>/<y>')
@@ -51,6 +56,21 @@ def hello_get():
         output_html = "Hello {}, you are {} years old."
         return output_html.format(name, age)
 
+@app.route('/hello_get2')
+def hello_get2():
+    name = request.args.get('name')
+    age = request.args.get('age')
+    print(render_template(
+        'hello_get.html',
+        name=name,
+        age=age
+    ))
+    return render_template(
+        'hello_get.html',
+        name=name,
+        age=age
+    )
+
 
 @app.route('/hello_post', methods=["GET", "POST"])
 def hello_post():
@@ -73,11 +93,22 @@ def hello_post():
         return output_html
 
 # /poker?player=5
-@app.route('/poker')
-def play_poker():
-    player = int(request.args.get('player'))
-    output_json = p.poker(player)
-    return jsonify(output_json)
+# @app.route('/poker')
+# def play_poker():
+#     player = int(request.args.get('player'))
+#     output_json = p.poker(player)
+#     return jsonify(output_json)
+
+@app.route('/poker', methods=['GET', 'POST'])
+def poker():
+    request_method = request.method
+    players = 0
+    cards = dict()
+    if request_method == 'POST':
+        players = int(request.form.get('players'))
+        cards = p.poker(players)
+    return render_template('poker.html', request_method=request_method,
+                                         cards=cards)
 
 
 if __name__ == '__main__':
