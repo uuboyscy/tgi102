@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import poker as p
+import model
 
 app = Flask(
     __name__,
@@ -110,6 +111,15 @@ def poker():
     return render_template('poker.html', request_method=request_method,
                                          cards=cards)
 
+
+@app.route('/show_staff')
+def hello_google():
+    staff_data = model.getStaff()
+    column = ['ID', 'Name', 'DeptId', 'Age', 'Gender', 'Salary']
+    return render_template('show_staff.html', staff_data=staff_data,
+                                              column=column)
+# [GET] /get_staff/dep/<dep_string> -> List<emp_obj>
+# [GET] /get_staff/dep/get_all -> List<dep_name>
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
